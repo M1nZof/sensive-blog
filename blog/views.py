@@ -1,3 +1,5 @@
+from django.db.models import Count
+from django.db.models.functions import Lower
 from django.shortcuts import render
 from blog.models import Comment, Post, Tag
 
@@ -27,9 +29,14 @@ def serialize_tag(tag):
     }
 
 
-def index(request):
+# def get_likes_count(post):
+#     return post.likes.count()
 
-    most_popular_posts = []  # TODO. Как это посчитать?
+
+def index(request):
+    ordered_posts_by_likes = Post.objects.annotate(Count('likes')).order_by(Lower('likes__count').desc())[:5]
+
+    most_popular_posts = list(ordered_posts_by_likes)
 
     fresh_posts = Post.objects.order_by('published_at')
     most_fresh_posts = list(fresh_posts)[-5:]
