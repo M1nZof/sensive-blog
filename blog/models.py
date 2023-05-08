@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -11,6 +11,9 @@ class PostQuerySet(models.QuerySet):
 
     def fresh(self):
         return self.prefetch_related('author').annotate(comments_count=Count('comments')).order_by('-published_at')
+
+    def fetch_with_tags(self, queryset):
+        return self.prefetch_related('author', Prefetch('tags', queryset=queryset))
 
     def fetch_with_comments_count(self):
         posts_ids = [post.id for post in self]
