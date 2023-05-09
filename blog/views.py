@@ -1,6 +1,6 @@
-from django.db.models import Count, Prefetch
+from django.db.models import Count
 from django.shortcuts import render, get_object_or_404
-from blog.models import Comment, Post, Tag
+from blog.models import Post, Tag
 
 
 def serialize_post(post):
@@ -46,7 +46,7 @@ def index(request):
 def post_detail(request, slug):
     post_queryset = Post.objects.annotate(likes_amount=Count('likes'))
     post = get_object_or_404(post_queryset, slug=slug)
-    comments = Comment.objects.select_related('author').filter(post=post)
+    comments = post.comments.select_related('author').filter(post=post)
     serialized_comments = []
     for comment in comments:
         serialized_comments.append({
